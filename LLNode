@@ -1,0 +1,42 @@
+/*
+ * This class will take generics and put their info into the nodes
+ * these nodes will be implemented in the linked stack class
+ * the constructor sets the info of the parameter to info and makes its link null
+ * setInfo will take the parameter and will make info equal to it
+ * get info will return the info of the node
+ * set link will make the link equal to the top
+ * get link will return the link to the current node
+ */
+public class LLNode<T>
+{
+ protected T info;      // the data this node stores 
+ protected LLNode<T> link; // a link to the NEXT node
+  
+  
+  public LLNode(T element)
+  {
+    this.info = element; //sets the info to the info given for the constructor
+    link = null; //sets link to null
+  }
+  
+  public void setInfo(T info)
+  {
+    this.info = info; //sets the info to the info given from the instructor
+  }
+
+  public T getInfo()
+  {    
+    return info; //returns the given info of the node
+  }
+
+  public void setLink(LLNode<T> top)
+  {
+    this.link = top; //sets a link to the top
+  }
+
+  public LLNode<T> getLink()
+  {
+    return link; //returns the link
+  }
+
+} // end class
