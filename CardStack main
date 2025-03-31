@@ -1,0 +1,779 @@
+//this is the main class of the project
+/*
+ * The function of this class will be to take in integer inputs which is the row and columns of cards,
+ * next take input of n * m cards and decide whether they are valid inputs,convert them to a number
+ * between -52 to 52 according to the suite/value/orientation, read in a string of flips where each
+ * letter will be the type of flip, change the in play bounds of the array after each flip, and in
+ * the end I turn the linked stack numbers back into its suite and value and output it with each test
+ */
+
+import java.util.Scanner;
+
+public class CardStack
+{
+//below is some input/outputs
+	/*
+	 * 
+	 * 2 3 
+UC4 DD3 DC8 
+UC6 UDJ DC5 
+LRB 
+1 1 
+UC3 
+
+1 1 
+DC3 
+
+0 0 
+
+Sample Output 
+ 
+Test 1: D3 C4 C5 DJ 
+Test 2: 
+Test 3: C3 
+
+
+Input Test 2: 
+
+4 4 
+UDT DHA UC6 UDK 
+UH3 DS6 UC7 DD5 
+DDJ UD7 DSJ UD3 
+UH6 US4 DHK USQ 
+TBLRTL 
+
+0 0
+
+Output:
+Test 1: SJ D3 D5 DK C7 S6 H3 DJ H6 D7 
+
+Input Test 3: 
+
+4 4 
+UD2 DHA UC6 UDK 
+UH3 DS6 UC7 DD5 
+DDJ UD7 DSJ UD3 
+UH6 US4 DHK USQ 
+TTTRRR
+
+0 0
+
+Output: 
+Test 1: D2 HK C6 SQ HA S4 
+
+
+Input Test 4:
+
+1 2
+US9 DC3
+L
+
+Output:
+
+C3 S9
+
+Input Test 5:
+
+1 1
+US19
+
+Output:
+
+will terminate program and have no output
+
+
+Input Test 5:
+
+10 10
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1 UC1
+LLLLLLLLLTTTTTTTTT
+
+0 0
+
+Output:
+
+Test 1: CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA CA
+
+
+Input Test 6: 
+
+1 1
+QF9
+
+Output:
+
+Should terminate program
+
+Input Test 7:
+
+1 4
+UDK US4 UC7 UC4
+LLL
+
+Output:
+
+DK C7
+
+
+
+	 */
+	//beginning of the main method
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args)
+	{
+		Scanner scnr = new Scanner(System.in); //scanner to get inputs
+		LinkedStack<Integer>[][] grid = null; //make array of LinkedStacks with type Integer
+		int testCount = 0; //variable for output that will increment after each test
+		do
+		{
+			testCount++; //test count incremented for each test
+			int temp1 = scnr.nextInt(); //scan in the rows
+			int temp2 = scnr.nextInt(); //scan in the columns
+			//System.out.println(temp2); 
+			int cardNum; //make a variable that will hold the -52 to 52 card number
+
+			//System.out.println(temp2);
+			//System.out.println((temp2 == 0));
+			
+			/*this is the line of code that will check the integer from scnr and terminate 
+			the project if there is two 0's*/
+			if (temp2 != 0 && temp1 != 0) 
+			{
+				int n = temp1;
+				int m = temp2;
+				//System.out.println(n + " " + m);
+				grid = new LinkedStack[n][m]; //sets the rows and columns of the array
+				for (int i = 0; i < n; i++) //iterate the amount of rows
+				{
+					for (int j = 0; j < m; j++) //iterate the amount of columns
+					{
+						String cards = scnr.next();
+						if (cards.length() == 3)
+						{
+						//get each card from scanner
+						//System.out.println(j + " " + cards);
+						switch(cards.charAt(2)) //switch that will check the number value 
+						{
+						case 'a':
+							cardNum = valueNames(cards) + 1; //calls on method for values that are of a or Ace
+							break;
+						case 'A':
+							cardNum = valueNames(cards) + 1; //calls on method for values that are of A or Ace
+							break;
+						case 'j':
+							cardNum = valueNames(cards) + 11; //calls on method for values that are of j or Jack
+							break;
+						case 'J':
+							cardNum = valueNames(cards) + 11; //calls on method for values that are of J or Jack
+							break;
+						case 'q':
+							cardNum = valueNames(cards) + 12; //calls on method for values that are of q or Queen
+							break;
+						case 'Q':
+							cardNum = valueNames(cards) + 12; //calls on method for values that are of Q or Queen
+							break;
+						case 'K':
+							cardNum = valueNames(cards) + 13; //calls on method for values that are of K or King
+							break;
+						case 'k':
+							cardNum = valueNames(cards) + 13; //calls on method for values that are of k or King
+							break;
+						default:
+							cardNum = valueNumbers(cards); //calls on method for values that not of Ace, Jack, Queen or King
+							break;
+						}
+						
+						switch(cards.charAt(0)) //switch that checks the orientation of the card
+						{
+						case 'U':
+							cardNum *= 1; //if up multiply by 1
+							break;
+						case 'u':
+							cardNum *= 1; //if up multiply by 1
+							break;
+						case 'D':
+							cardNum *= -1; //if down multiply by -1
+							break;
+						case 'd':
+							cardNum *= -1; //if down multiply by -1
+							break;
+						default: 
+							//System.out.println("1");
+							System.exit(0); //terminate if invalid string type
+						}
+						
+						grid[i][j] = new LinkedStack<Integer>(cardNum); //fill in array with all the numbers
+						}
+						else
+						{
+							System.exit(0);						}
+					}
+				}
+				
+				/*for (int l = 0; l < grid.length; l++)
+				{
+					for (int o = 0;o < grid[0].length; o++)
+					{
+						System.out.println(grid[l][o].top());
+					}
+				} */
+				
+				int boundT = 0; //bound for the top of array
+				int boundB = n - 1; //bound for bottom of array
+				int boundR = m - 1; //bound for right side of array
+				int boundL = 0; //bottom of left side of array
+				int flipCount = n + m - 2; //amount of flips which will always be n+m-2
+				
+				
+				
+				/*for (int i = 0; i < n; i++)
+				{
+					for (int j = 0; j < m; j++)
+					{
+						LLNode<Integer> currNode = grid[i][j].top;
+						while (currNode != null)
+						{
+							System.out.println(currNode.getInfo());
+							currNode = currNode.getLink();
+						}
+					}
+				}
+				*/
+				
+				if (n * m != 1) //accounts for if the rows and columns r both 1, then u will not read the next line as it will be empty since there will be no flips
+				{	
+				String flips = scnr.next(); //gets the string of flips from input
+				for (int i = 0; i < flipCount; i++) //loop which iterates amount of flip times
+				{
+					
+					/*for (int p = 0; p < n; p++)
+					{
+						for (int o = 0; o < m; o++)
+						{
+							LLNode<Integer> currNode = grid[p][o].top;
+							while (currNode != null)
+							{
+								System.out.println(i + ".)"+currNode.getInfo());
+								currNode = currNode.getLink();
+							}
+						}
+					}*/
+					//System.out.println(i + " " + flips.charAt(i));
+					switch(flips.charAt(i)) //switch that checks what type of flip and returns grid after flip
+					{
+					case 'T':
+						grid = topFlip(grid, boundT, boundL, boundR); //set array to method that will return top flip
+						boundT++; //increase bounds of top
+						break;
+					case 't':
+						grid = topFlip(grid, boundT, boundL, boundR); //set array to method that will return top flip
+						boundT++; //increase bounds of top
+						break;
+					case 'B':
+						grid = bottomFlip(grid, boundB, boundL, boundR); //set array to method that will return bottom flip
+						boundB--; //decrease bounds of bottom
+						break;
+					case 'b':
+						grid = bottomFlip(grid, boundB, boundL, boundR); //set array to method that will return bottom flip
+						boundB--; //decrease bounds of bottom
+						break;
+					case 'L':
+						grid = leftFlip(grid, boundL, boundT, boundB); //set array to method that will return left flip
+						boundL++; //increase bound of left
+						break;
+					case 'l':
+						grid = leftFlip(grid, boundL, boundT, boundB); //set array to method that will return left flip
+						boundL++; //increase bound of left
+						break;
+					case 'R':
+						grid = rightFlip(grid, boundR, boundT, boundB); //set array to method that will return right flip
+						boundR--; //decrease bound of left
+						break;
+					case 'r':
+						grid = rightFlip(grid, boundR, boundT, boundB); //set array to method that will return right flip
+						boundR--; //decrease bound of left
+						break;
+					default:
+						break;
+					}
+				}
+				}
+				
+				
+				/* final block of code where the output will occur 
+				 * after each Test occurs. This will output "Test (#):"
+				 */
+				LinkedStack<Integer> holder = new LinkedStack<Integer>(); //new linked stack called holder
+				System.out.print("Test " + testCount + ":"); //will print out the test count for each test
+					
+					for (int i = 0; i < n; i++) //iterate amount of rows
+					{
+						for (int j = 0; j < m; j++) //iterate amount of columns
+						{
+							LLNode<Integer> currNode = grid[i][j].top; //node that will cover each spot of array
+							while (currNode != null) //while not at the bottom of the list
+							{
+								holder.push(currNode.getInfo()); //push the contents onto holder linkedstack
+								//System.out.print(currNode.getInfo() + " ");
+								currNode = currNode.getLink(); //get the link to the currNode
+							}
+						}
+					}
+					
+					
+					LLNode<Integer> currNode = holder.top; //set currNode to the top of holder
+					while (currNode != null) //until at the bottom iterate loop
+					{
+						//System.out.println("t1: " + currNode.getInfo());
+						currNode = currNode.getLink(); //was a test to check contents 
+					}
+					
+					
+					//this block should make all the numbers positive
+					/*LLNode<Integer> currNode = holder.top;
+					while (currNode != null)
+					{
+						holder.pop();
+						Integer stiff = currNode.getInfo() * -1;
+						holder.push(stiff);
+						//System.out.print(" wowowowo " + currNode.getInfo());
+						currNode = currNode.getLink();
+						
+						
+					}*/
+					
+					/*LinkedStack<Integer> holder2 = new LinkedStack<Integer>();
+					LLNode<Integer> currNode = holder.top;
+					while (currNode != null)
+					{
+						if (currNode.getInfo() < 0)
+						{
+							holder2.push(currNode.getInfo());
+							System.out.println("facts1 " + currNode.getInfo());
+						}
+						currNode = currNode.getLink();
+					}
+				
+					LinkedStack<Integer> holder3 = new LinkedStack<Integer>();
+					currNode = holder2.top;
+					while (currNode != null)
+					{
+						if (currNode.getInfo() < 0)
+						{
+							holder3.push(currNode.getInfo());
+							System.out.println("facts2 " + currNode.getInfo());
+						}
+						currNode = currNode.getLink();
+					}
+					
+					currNode = holder3.top;
+					while (currNode != null)
+					{
+						holder3.push(currNode.getInfo() * -1);
+						System.out.println("facts3 " + holder3.top());
+						currNode = currNode.getLink();
+					}
+					
+					
+					currNode = holder3.top;
+					while (currNode != null)
+					{
+						switch (currNode.getInfo() / 13)
+						{
+						case 0:
+							System.out.print("C" + (checkNum(currNode.getInfo())));
+							currNode = currNode.getLink();
+							break;
+						case 1:
+							System.out.print("D" + (checkNum(currNode.getInfo())));
+							currNode = currNode.getLink();
+							break;
+						case 2:
+							System.out.print("H" + (checkNum(currNode.getInfo())));
+							currNode = currNode.getLink();
+							break;
+						case 3:
+							System.out.print("S" + (checkNum(currNode.getInfo())));
+							currNode = currNode.getLink();
+							break;
+						default:
+							break;
+						}
+						System.out.print(" " + currNode.getInfo());
+						currNode = currNode.getLink();
+					} */
+					
+					
+					String suite = null; //string that will hold the final output of the card
+					currNode = holder.top; //make a node set to the top of holder linkedstack
+					while (currNode != null) //iterate til at the bottom
+					{  
+						if (currNode.getInfo() < 0 && currNode.getInfo() >= -13) //if the currNode is between -13 to 0
+						{
+							Integer last = currNode.getInfo() * -1; //change the value to positive
+							if (last == 1 || last == 11 || last == 12 || last == 13) //if one of the letter values go to method for it
+							{
+								suite = checkNum(last); //suite will return the string after the method
+							}
+							else
+							{
+								suite = ("" + last); //suite will just be the value if not a letter value
+							}
+							String finCar = ("C" + suite); //club + value
+							System.out.print(" " + finCar); //print to console the final card string
+							currNode = currNode.getLink(); //get the link to the node and set to currnode
+						}
+						else if (currNode.getInfo() < -13 && currNode.getInfo() >= -26) //if between -13 to -26
+						{
+							Integer last = currNode.getInfo() * -1; //switch value to positive
+							last -= 13; //minus 13 since diamond is club value + 13
+							if (last == 1 || last == 11 || last == 12 || last == 13) //if one of the letter values
+							{
+								suite = checkNum(last); //method for letter values (A, J, Q, K)
+							}
+							else
+							{
+								suite = ("" + last); //otherwise just the value of currnode
+							}
+							String finCar = ("D" + suite); //String that will be Diamond D and number/letter value
+							System.out.print(" " + finCar); //print to console the final card suite and value
+							currNode = currNode.getLink(); //set node to the link
+						}
+						else if(currNode.getInfo() < -26 && currNode.getInfo() >= -39) //if between -26 to -39
+						{
+							Integer last = currNode.getInfo() * -1; //switches value to positive
+							last -= 26; //minus 26 since hearts is base val +26
+							if (last == 1 || last == 11 || last == 12 || last == 13) //if one of the values is a letter value
+							{
+								suite = checkNum(last); //suite will be the return of the method for letter values
+							}
+							else
+							{
+								suite = ("" + last); //otherwise just make it the value
+							}
+							String finCar = ("H" + suite); //String that will be Heart H and number/letter value
+							System.out.print(" " + finCar); //print to console the final card suite and value
+							currNode = currNode.getLink(); //set node to the link
+						}
+						else if(currNode.getInfo() < -39 && currNode.getInfo() >= -52) //if between -39 to -52
+						{
+							Integer last = currNode.getInfo() * -1;//switches value to positive
+							last -= 39; //-39 since spade is +36 to base value
+							if (last == 1 || last == 11 || last == 12 || last == 13) //if one of the values is a letter value
+							{
+								suite = checkNum(last); //suite will be the return of the method for letter values
+							}
+							else
+							{
+								suite = ("" + last); //otherwise just make it the value
+							}
+							String finCar = ("S" + suite);  //String that will be Spade S and number/letter value
+							System.out.print(" " + finCar); //print to console the final card suite and value
+							currNode = currNode.getLink(); //set node to the link
+						}
+						else
+						{
+							currNode = currNode.getLink(); //if none of the above then get link
+						}
+					} 
+				
+				System.out.println(); //new line for each test
+			}
+			else 
+			{
+				//if the input of rows and column has 0 at all, then it will terminate
+				//System.out.println("2");
+				System.exit(0);
+			}
+			
+		}
+		while (scnr.hasNext()); //conditional to continue taking inputs for more tests
+		
+		scnr.close(); //close scanner just because
+	}
+	
+	public static int valueNumbers(String card) //method that takes the card strink
+	{
+		int cardNum = 0; //variable to hold the card number
+		String tempString; //temporary used string
+		String cards = card; //string is cards from parameter
+		switch(cards.charAt(1)) //switch to check the suite
+		{
+		case 'C': //case club
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString); //set cardNum to integer value of the string
+			if (cardNum == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'c': //case club
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString); //set cardNum to integer value of the string
+			if (cardNum == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'D': //case diamond
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 13; //set cardNum to integer value of the string + 13
+			if (cardNum -13 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'd': //case diamond
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 13; //set cardNum to integer value of the string + 13
+			if (cardNum -13 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'H': //case heart
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 26; //set cardNum to integer value of the string + 26
+			if (cardNum-26 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'h': //case heart
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 26; //set cardNum to integer value of the string + 26
+			if (cardNum-26 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 'S': //case spade
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 39; //set cardNum to integer value of the string + 39
+			if (cardNum-39 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		case 's': //case spade
+			tempString = ("" + cards.charAt(2)); //string will be value at char 2 in card
+			cardNum = Integer.parseInt(tempString) + 39; //set cardNum to integer value of the string + 39
+			if (cardNum-39 == 1)
+			{
+				System.exit(0);			
+			}
+			break;
+		default:
+			//System.out.println(cards);
+			//System.out.println("3");
+			System.exit(0); //terminate if no cases apply
+		}
+		return cardNum; //return card number
+	}
+	
+	public static int valueNames(String card) //method to deal with the values that are letters (A, J, Q, or K)
+	{
+		int cardNum = 0; //cardnumber variable
+		String cards = card; //string of the 3 letter card
+		switch(cards.charAt(1)) //check the suite
+		{
+		case 'C': //case club
+			cardNum += 0;
+			break;
+		case 'c': //case club
+			cardNum += 0;
+			break;
+		case 'D': //case diamond
+			cardNum += 13;
+			break;
+		case 'd': //case diamond
+			cardNum += 13;
+			break;
+		case 'H': //case heart
+			cardNum += 26;
+			break;
+		case 'h': //case heart
+			cardNum += 26;
+			break;
+		case 'S': //case spade
+			cardNum += 39;
+			break;
+		case 's': //case spade
+			cardNum += 39;
+			break;
+		default:
+			//System.out.println("4");
+			System.exit(0); //terminate program
+		}
+		return cardNum; //return the cardnumber
+	}
+	//method that will perform the top flip and return the updated array of stacks
+	public static LinkedStack<Integer>[][] topFlip(LinkedStack<Integer>[][] grid, int boundT, int boundL, int boundR)
+	{
+	
+		for (int i = boundL; i < boundR + 1; i++)  //bounds for i is L and it will iterate til at the right bound
+		//putting all of the top row stacks onto the one below it
+		{
+			LLNode<Integer> currNode = grid[boundT][i].top; //set currnode to the top row and column i
+			while (currNode != null) //iterate til at bottom
+			{
+				Integer hold = currNode.getInfo() * -1; //flip the card
+				grid[boundT][i].pop(); //pop the card off the stack
+				grid[boundT+1][i].push(hold); //push the card onto the row below for each i column
+				currNode = currNode.getLink(); //set the node to its link
+				//System.out.println(hold);
+			}
+			
+			//System.out.println("iteration " + i);
+			//System.out.println("iteration" + i);
+		}
+		//changing the bounds of the array and filling in the "in play" rows & columns
+		//into the new array
+	return grid; //returning the new grid
+	}
+	//method that will perform the bottom flip and return the updated array of stacks
+	public static LinkedStack<Integer>[][] bottomFlip(LinkedStack<Integer>[][] grid, int boundB, int boundL, int boundR)
+	{
+			for (int i = boundL; i < boundR + 1; i++) //i is the left bound and will iterate til at right bound
+			{
+				LLNode<Integer> currNode = grid[boundB][i].top; //set currnode to the bottom row and column i
+				//System.out.println(grid[boundB][i].isEmpty())
+				while (currNode != null) //iterate til at bottom
+				{
+					Integer hold = currNode.getInfo() * -1; //flip card
+					grid[boundB][i].pop(); //pop off the bottom row
+					grid[boundB-1][i].push(hold); //push onto the row above the bottom
+					currNode = currNode.getLink(); //set node to its link
+					//System.out.println(hold);
+				}
+				//System.out.println("iteration " + i);
+				//System.out.println("iteration" + i);
+			}
+			
+		return grid; //return the updated array
+	}
+	//method that will perform the left flip and return the updated array of stacks
+	public static LinkedStack<Integer>[][] leftFlip(LinkedStack<Integer>[][] grid, int boundL, int boundT, int boundB)
+	{
+			for (int i = boundT; i < boundB + 1; i++) //i will be from top to bottom
+			{
+				//System.out.println(grid[i][boundL].isEmpty());
+
+				LLNode<Integer> currNode = grid[i][boundL].top; //set node to the i row and left column
+				while (currNode != null) //iterate til at the bottom
+				{
+					Integer hold = currNode.getInfo() * -1; //flip card
+					grid[i][boundL].pop(); //pop off the left column
+					grid[i][boundL + 1].push(hold); //push onto the column to the right of left bound
+					currNode = currNode.getLink(); //set node to its link
+					//System.out.println(hold);
+				}
+				
+				
+				//System.out.println("iteration" + i);
+				
+			}
+			
+			
+			
+		return grid; //return updated array
+		
+		
+	}
+	
+	/*
+	 * right flipping method that will allow for the bounds to be taken in and be considered 
+	 * so all previous flips will be accounted for. When the flip occurs it will copy all of the 
+	 * contents of the far right column in play to the one that is to the left of it.
+	 * The info will be mulitplied by *-1 to show the flip (Ex: if it's already -3 then multiplying it
+	 * by *-1 will give it a value of 3 indicating it is now face up. This will return the updated grid array
+	 */
+	
+	public static LinkedStack<Integer>[][] rightFlip(LinkedStack<Integer>[][] grid, int boundR, int boundT, int boundB)
+	{
+			for (int i = boundT; i < boundB + 1; i++) //loop that will account for the bounds in play
+			{
+				LLNode<Integer> currNode = grid[i][boundR].top; //set node to the top of the right bound
+				while (currNode != null) //continue this loop until at the bottom of the linkedstack
+				{
+					Integer hold = currNode.getInfo() * -1; //orientation update
+					grid[i][boundR].pop(); //popping from linkedstack
+					grid[i][boundR - 1].push(hold); //pushes it onto the column left of the far right
+					currNode = currNode.getLink(); //get the link of the node
+					//System.out.println(hold);
+				}
+				
+				//System.out.println("iteration " + i);
+			}
+		return grid;
+		
+	}
+	//method that will check the number and see if the remainder is that of what a ace, jack, queen, or king would be
+	//then this method will return the letter in a string to the code that called the method
+	public static String checkNum(Integer info)
+	{
+		String maybe; //string that will hold the letter of suite
+		switch(info % 13) //info modulo 13 which will be either 1, 11, 12, or 0 according to (A, J, K, or Q)
+		{
+		case 1:
+			maybe = "A"; //case for Ace
+			break;
+		case 11:
+			maybe = "J"; //case for Jack
+			break;
+		case 12:
+			maybe = "Q"; //case for Queen
+			break;
+		case 0:
+			maybe = "K"; //case for King
+			break;
+		default:
+			maybe = ("" + info % 13); //case if none then return the info mod 13
+			break;
+		}
+		return maybe;
+		
+	}
+}
+
+		//program should allow a user to input multiple cases of n and m
+		//, card numbers, and commands, create the
+		//grid, and then produce the output
+		
+		
+		//Top Flip: In a Top Flip, the cards in the top row are flipped over 
+		//onto the corresponding cards on the row beneath them. Note that if a 
+		//card is face up in the top row, it becomes face down after the flip, 
+		//andvice versa. If the top row contains one or more piles of cards, 
+		//each entire pile is flipped over like astack of pancakes as it is moved 
+		//to the lower row. Note: Conceptually, we think of flipping the ENTIRE 
+		//stack at once; what actually happens is that each card in the stack gets 
+		//flipped one at a time,until that stack has no cards left.
+		
+		
+		//Bottom Flip: Same as the Top Flip, except the bottom row is flipped onto 
+		//the next-to-bottom row.
+		
+		//Left Flip: Flip the cards in the left-most column onto the next-to-leftmost column.
+		
+		//Right Flip: Flip the cards in the rightmost column onto the next-to-rightmost column
+		
+		
+		//After a series of n + m – 2 flips, the cards will be in a single pile
+		
+		
+		
+	
+		
+
+
+
